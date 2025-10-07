@@ -20,6 +20,19 @@ Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']
 Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
 Route::post('/auth/telegram/callback', [TelegramAuthController::class, 'handleCallback']);
 
+// --- Тестовые роуты для проверки БД ---
+Route::get('/test/categories', function () {
+    return \App\Models\Category::with('breeds')->get();
+});
+
+Route::get('/test/breeds', function () {
+    return \App\Models\Breed::with('category')->get();
+});
+
+Route::get('/test/announcements', function () {
+    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])->get();
+});
+
 
 // --- Роуты, доступные только авторизованным пользователям ---
 Route::middleware('auth:sanctum')->group(function () {
