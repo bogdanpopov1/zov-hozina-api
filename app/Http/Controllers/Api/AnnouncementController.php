@@ -3,51 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use Illuminate\Http\Request;
 
 class AnnouncementController extends Controller
 {
     public function getUrgent(Request $request)
     {
-        $mockData = [
-            [
-                "id" => 1,
-                "location_city" => "Казань",
-                "status_text" => "В поисках",
-                "pet_breed" => "джек-рассел-терьер",
-                "location_address" => "улица Летняя, 1",
-                "last_updated" => "10.07.2025",
-                "image_url" => "/images/mock/dog1.png"
-            ],
-            [
-                "id" => 2,
-                "location_city" => "Казань",
-                "status_text" => "В поисках",
-                "pet_breed" => "корги",
-                "location_address" => "улица Мира, 27",
-                "last_updated" => "10.07.2025",
-                "image_url" => "/images/mock/dog2.png"
-            ],
-            [
-                "id" => 3,
-                "location_city" => "Казань",
-                "status_text" => "В поисках",
-                "pet_breed" => "шотландец",
-                "location_address" => "улица Пушкина, 42",
-                "last_updated" => "10.07.2025",
-                "image_url" => "/images/mock/cat1.png"
-            ],
-            [
-                "id" => 4,
-                "location_city" => "Казань",
-                "status_text" => "В поисках",
-                "pet_breed" => "британец",
-                "location_address" => "улица Восточная, 193",
-                "last_updated" => "10.07.2025",
-                "image_url" => "/images/mock/cat2.png"
-            ],
-        ];
+        // 1. Получаем 4 последних объявления из базы данных
+        $announcements = Announcement::latest('created_at')->take(4)->get();
 
-        return response()->json($mockData);
+        // 2. Трансформируем данные в формат, который ждет фронтенд
+        $formattedAnnouncements = $announcements->map(function ($ad) {
+            return [
+                "id" => $ad->announcement_id,
+                "location_city" => "Казань", // Пока заглушка
+                "status_text" => "В поисках", // Пока заглушка
+                "pet_breed" => $ad->pet_breed,
+                "location_address" => $ad->location_address,
+                "last_updated" => $ad->updated_at->format('d.m.Y'),
+                "image_url" => "/images/mock/dog1.jpg" // Пока оставляем моковые картинки
+            ];
+        });
+
+        return response()->json($formattedAnnouncements);
     }
 }
