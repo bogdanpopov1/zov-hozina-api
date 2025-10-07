@@ -33,6 +33,23 @@ Route::get('/test/announcements', function () {
     return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])->get();
 });
 
+// --- API для клиентского приложения ---
+Route::get('/announcements/urgent', function () {
+    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])
+        ->where('status', 'active')
+        ->where('is_featured', true)
+        ->orderBy('created_at', 'desc')
+        ->limit(4)
+        ->get();
+});
+
+Route::get('/announcements', function () {
+    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])
+        ->where('status', 'active')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+});
+
 
 // --- Роуты, доступные только авторизованным пользователям ---
 Route::middleware('auth:sanctum')->group(function () {
