@@ -4,14 +4,28 @@
 echo "Waiting for database to be ready..."
 sleep 10
 
+# Find PHP executable
+PHP_CMD="php"
+if ! command -v php &> /dev/null; then
+    # Try common PHP locations
+    for path in /usr/bin/php /usr/local/bin/php /opt/php/bin/php; do
+        if [ -x "$path" ]; then
+            PHP_CMD="$path"
+            break
+        fi
+    done
+fi
+
+echo "Using PHP: $PHP_CMD"
+
 # Run migrations
 echo "Running migrations..."
-php artisan migrate --force
+$PHP_CMD artisan migrate --force
 
 # Run seeders (optional - only for initial setup)
 echo "Running seeders..."
-php artisan db:seed --force
+$PHP_CMD artisan db:seed --force
 
 # Start the application
 echo "Starting application..."
-php artisan serve --host 0.0.0.0 --port $PORT
+$PHP_CMD artisan serve --host 0.0.0.0 --port $PORT
