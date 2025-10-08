@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Category;
 
 class CategorySeeder extends Seeder
 {
@@ -64,7 +65,11 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            \App\Models\Category::create($category);
+            // Используем updateOrCreate вместо create
+            Category::updateOrCreate(
+                ['slug' => $category['slug']], // Условие для поиска
+                $category // Данные для создания или обновления
+            );
         }
     }
 }

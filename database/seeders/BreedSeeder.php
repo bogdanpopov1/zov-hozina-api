@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Breed;
 
 class BreedSeeder extends Seeder
 {
@@ -207,7 +208,11 @@ class BreedSeeder extends Seeder
         ];
 
         foreach ($breeds as $breed) {
-            \App\Models\Breed::create($breed);
+             // Используем updateOrCreate вместо create
+            Breed::updateOrCreate(
+                ['slug' => $breed['slug']], // Условие для поиска
+                $breed // Данные для создания или обновления
+            );
         }
     }
 }
