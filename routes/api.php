@@ -42,12 +42,12 @@ Route::get('/announcements/urgent', function () {
         ->get();
 });
 
-// --- Получение всех объявлений (для будущей страницы с картой/списком) ---
+// --- Получение всех объявлений (для страницы с картой) ---
 Route::get('/announcements', function () {
     return Announcement::with(['user', 'category', 'breed', 'photos'])
         ->where('status', 'active')
         ->orderBy('created_at', 'desc')
-        ->paginate(10); // Пагинация важна для производительности
+        ->get(); // Теперь возвращается полный массив, а не объект пагинации
 });
 
 

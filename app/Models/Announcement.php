@@ -22,6 +22,8 @@ class Announcement extends Model
         'pet_breed',
         'description',
         'location_address',
+        'latitude',
+        'longitude',
         'status',
         'age',
         'gender',

@@ -8,24 +8,32 @@ use Illuminate\Http\Request;
 
 class AnnouncementController extends Controller
 {
-    public function getUrgent(Request $request)
+    /**
+     * Получить все активные объявления с пагинацией.
+     */
+    public function index()
     {
-        // 1. Получаем 4 последних объявления из базы данных
-        $announcements = Announcement::latest('created_at')->take(4)->get();
+        // Загружаем связанные модели user и photos для эффективности
+        $announcements = Announcement::with(['user', 'photos'])
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15); // Используем пагинацию для больших списков
 
-        // 2. Трансформируем данные в формат, который ждет фронтенд
-        $formattedAnnouncements = $announcements->map(function ($ad) {
-            return [
-                "id" => $ad->announcement_id,
-                "location_city" => "Казань", // Пока заглушка
-                "status_text" => "В поисках", // Пока заглушка
-                "pet_breed" => $ad->pet_breed,
-                "location_address" => $ad->location_address,
-                "last_updated" => $ad->updated_at->format('d.m.Y'),
-                "image_url" => "/images/mock/dog1.jpg" // Пока оставляем моковые картинки
-            ];
-        });
+        return response()->json($announcements);
+    }
 
-        return response()->json($formattedAnnouncements);
+    /**
+     * Получить 4 последних "срочных" объявления для главной страницы.
+     */
+    public function getUrgent()
+    {
+        $announcements = Announcement::with(['user', 'photos'])
+            ->where('status', 'active')
+            ->where('is_featured', true) // Предполагаем, что "срочные" - это is_featured
+            ->latest('created_at') // Более короткая запись для orderBy('created_at', 'desc')
+            ->take(4)
+            ->get();
+
+        return response()->json($announcements);
     }
 }
