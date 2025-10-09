@@ -1,41 +1,39 @@
 <?php
 
-use App\Http\Controllers\Api\TelegramAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\SuccessStoryController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TelegramAuthController;
+use App\Models\Announcement; // Импортируем модель для использования в маршруте
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
+|
+| Этот файл определяет все маршруты для вашего API.
+| Они разделены на две группы: публичные и защищенные.
+|
 */
 
-// --- Роуты, доступные всем ---
+// ==================================================
+// 1. ПУБЛИЧНЫЕ МАРШРУТЫ (доступны всем без токена)
+// ==================================================
+
+// --- Аутентификация ---
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
-Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
 Route::post('/auth/telegram/callback', [TelegramAuthController::class, 'handleCallback']);
 
-// --- Тестовые роуты для проверки БД ---
-Route::get('/test/categories', function () {
-    return \App\Models\Category::with('breeds')->get();
-});
+// --- Получение данных для главной страницы ---
+Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
 
-Route::get('/test/breeds', function () {
-    return \App\Models\Breed::with('category')->get();
-});
-
-Route::get('/test/announcements', function () {
-    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])->get();
-});
-
-// --- API для клиентского приложения ---
+// Используем этот маршрут для получения 4 срочных объявлений.
+// Дублирующийся маршрут, который вел на контроллер, был удален.
 Route::get('/announcements/urgent', function () {
-    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])
+    return Announcement::with(['user', 'category', 'breed', 'photos'])
         ->where('status', 'active')
         ->where('is_featured', true)
         ->orderBy('created_at', 'desc')
@@ -43,25 +41,38 @@ Route::get('/announcements/urgent', function () {
         ->get();
 });
 
+// --- Получение всех объявлений (для будущей страницы с картой/списком) ---
 Route::get('/announcements', function () {
-    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])
+    return Announcement::with(['user', 'category', 'breed', 'photos'])
         ->where('status', 'active')
         ->orderBy('created_at', 'desc')
-        ->paginate(10);
+        ->paginate(10); // Пагинация важна для производительности
 });
 
 
-// --- Роуты, доступные только авторизованным пользователям ---
+// ==================================================
+// 2. ЗАЩИЩЕННЫЕ МАРШРУТЫ (требуют Bearer токен)
+// ==================================================
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // Получить информацию о текущем пользователе
+
+    // --- Управление сессией ---
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // --- Получение данных о текущем пользователе ---
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // Выйти из системы
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Здесь в будущем будут другие роуты для авторизованных
-    // например, Route::post('/announcements', [AnnouncementController::class, 'store']);
+    /*
+    |--------------------------------------------------------------------------
+    | Маршруты для будущих функций (требуют авторизации)
+    |--------------------------------------------------------------------------
+    |
+    | Сюда вы будете добавлять маршруты для создания, редактирования
+    | и удаления объявлений, когда пользователь вошел в систему.
+    |
+    | Пример:
+    | Route::post('/announcements', [AnnouncementController::class, 'store']);
+    |
+    */
 });
