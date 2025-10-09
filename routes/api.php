@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\SuccessStoryController;
 use App\Http\Controllers\Api\TelegramAuthController;
 use App\Models\Announcement; // Импортируем модель для использования в маршруте
+use App\Http\Controllers\Api\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,16 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Маршруты для будущих функций (требуют авторизации)
-    |--------------------------------------------------------------------------
-    |
-    | Сюда вы будете добавлять маршруты для создания, редактирования
-    | и удаления объявлений, когда пользователь вошел в систему.
-    |
-    | Пример:
-    | Route::post('/announcements', [AnnouncementController::class, 'store']);
-    |
-    */
+    // --- Обновление данных профиля ---
+    Route::put('/user', [ProfileController::class, 'update']);
+
 });
