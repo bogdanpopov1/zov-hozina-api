@@ -42,6 +42,16 @@ class AnnouncementController extends Controller
     }
 
     /**
+     * Display the specified announcement.
+     */
+    public function show(Announcement $announcement)
+    {
+        // Загружаем связанные данные (автора и все фотографии)
+        $announcement->load(['user', 'photos']);
+        return response()->json($announcement);
+    }
+
+    /**
      * Сохранить новое объявление в базе данных.
      */
     public function store(Request $request)

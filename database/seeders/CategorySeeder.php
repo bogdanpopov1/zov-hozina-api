@@ -13,62 +13,39 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        Category::query()->delete();
+
         $categories = [
             [
-                'name' => 'Собаки',
-                'slug' => 'dogs',
+                'name' => 'Собака',
+                'slug' => 'dog',
                 'description' => 'Объявления о продаже и отдаче собак',
                 'icon' => 'dog',
                 'is_active' => true,
                 'sort_order' => 1,
             ],
             [
-                'name' => 'Кошки',
-                'slug' => 'cats',
+                'name' => 'Кошка',
+                'slug' => 'cat',
                 'description' => 'Объявления о продаже и отдаче кошек',
                 'icon' => 'cat',
                 'is_active' => true,
                 'sort_order' => 2,
             ],
             [
-                'name' => 'Птицы',
-                'slug' => 'birds',
+                'name' => 'Птица',
+                'slug' => 'bird',
                 'description' => 'Объявления о продаже и отдаче птиц',
                 'icon' => 'bird',
                 'is_active' => true,
                 'sort_order' => 3,
             ],
-            [
-                'name' => 'Рыбы',
-                'slug' => 'fish',
-                'description' => 'Объявления о продаже и отдаче рыб',
-                'icon' => 'fish',
-                'is_active' => true,
-                'sort_order' => 4,
-            ],
-            [
-                'name' => 'Грызуны',
-                'slug' => 'rodents',
-                'description' => 'Объявления о продаже и отдаче грызунов',
-                'icon' => 'mouse',
-                'is_active' => true,
-                'sort_order' => 5,
-            ],
-            [
-                'name' => 'Рептилии',
-                'slug' => 'reptiles',
-                'description' => 'Объявления о продаже и отдаче рептилий',
-                'icon' => 'snake',
-                'is_active' => true,
-                'sort_order' => 6,
-            ],
         ];
 
         foreach ($categories as $category) {
-            // Используем updateOrCreate вместо create
             Category::updateOrCreate(
-                ['slug' => $category['slug']], // Условие для поиска
-                $category // Данные для создания или обновления
+                ['slug' => $category['slug']],
+                $category
             );
         }
     }

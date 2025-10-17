@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\SuccessStoryController;
 use App\Http\Controllers\Api\TelegramAuthController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\DataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,10 +23,10 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
 Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
-
-// ИСПРАВЛЕНО: Теперь GET-запросы на /announcements обрабатываются контроллером
 Route::get('/announcements', [AnnouncementController::class, 'index']);
-
+Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show']);
+Route::get('/categories', [DataController::class, 'getCategories']);
+Route::get('/breeds/search', [DataController::class, 'searchBreeds']);
 
 // ==================================================
 // 2. ЗАЩИЩЕННЫЕ МАРШРУТЫ (требуют Bearer токен)
