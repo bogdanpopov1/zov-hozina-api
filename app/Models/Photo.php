@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
@@ -25,6 +26,8 @@ class Photo extends Model
         'sort_order',
     ];
 
+    protected $appends = ['url'];
+
     protected $casts = [
         'is_primary' => 'boolean',
         'size' => 'integer',
@@ -39,6 +42,20 @@ class Photo extends Model
     public function announcement(): BelongsTo
     {
         return $this->belongsTo(Announcement::class, 'announcement_id', 'announcement_id');
+    }
+
+    public function getUrlAttribute(): string
+    {
+        // Получаем значение из колонки 'path'
+        $path = $this->attributes['path'];
+
+        // Если это уже полный URL (например, от Cloudinary в старых записях), возвращаем его как есть
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        // Иначе, формируем полный URL через фасад Storage
+        return Storage::disk('public')->url($path);
     }
 
     /**
@@ -60,9 +77,14 @@ class Photo extends Model
     /**
      * Get the full URL for the photo.
      */
-    public function getUrlAttribute(): string
+    public function getPathAttribute($value)
     {
-        return asset('storage/' . $this->path);
+        // Если путь уже является полным URL (например, из сидера), возвращаем как есть
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        // Иначе, формируем URL через Storage
+        return Storage::disk('public')->url($value);
     }
 
     /**

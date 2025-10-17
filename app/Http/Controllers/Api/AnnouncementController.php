@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log; 
@@ -57,18 +58,29 @@ class AnnouncementController extends Controller
             'color' => 'required|string|max:255',
             'age' => 'nullable|integer|min:0',
             'pet_breed' => 'nullable|string|max:255',
-            // Валидация для фото (пока опционально)
-            // 'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'photos' => 'nullable|array|max:5',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        // Добавляем ID пользователя к данным
         $validatedData['user_id'] = Auth::id();
 
-        // Создаем объявление
         $announcement = Announcement::create($validatedData);
 
-        // TODO: Логика для загрузки и сохранения фотографий
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $index => $file) {
+                $path = $file->store('announcements/' . $announcement->announcement_id, 'public');
 
-        return response()->json($announcement, 201);
+                $announcement->photos()->create([
+                    'path' => $path,
+                    'is_primary' => $index === 0,
+                    'original_name' => $file->getClientOriginalName(),
+                    'filename' => basename($path),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+            }
+        }
+
+        return response()->json($announcement->load('photos'), 201);
     }
 }
