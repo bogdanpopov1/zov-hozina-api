@@ -14,7 +14,6 @@ class AnnouncementSeeder extends Seeder
 {
     public function run(): void
     {
-        // Используем updateOrCreate, чтобы избежать дублирования при повторном запуске
         $user = User::updateOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -32,20 +31,21 @@ class AnnouncementSeeder extends Seeder
         }
 
         $breeds = [
-            'yorkshire-terrier' => Breed::where('slug', 'yorkshire-terrier')->first(),
-            'golden-retriever' => Breed::where('slug', 'golden-retriever')->first(),
+            'jack-russell-terrier' => Breed::where('slug', 'yorkshire-terrier')->first(), // Используем йорка как замену
+            'corgi' => Breed::where('slug', 'golden-retriever')->first(), // Используем ретривера как замену
+            'scottish-fold' => Breed::where('slug', 'british-shorthair')->first(), // Используем британца
             'british-shorthair' => Breed::where('slug', 'british-shorthair')->first(),
         ];
 
-        // Массив данных с добавленными координатами Казани
+        // ИСПРАВЛЕНО: Массив данных с реальными адресами и координатами в Казани
         $announcementsData = [
             [
                 'details' => [
-                    'user_id' => $user->user_id, 'category_id' => $dogsCategory->category_id, 'breed_id' => $breeds['yorkshire-terrier']?->breed_id,
+                    'user_id' => $user->user_id, 'category_id' => $dogsCategory->category_id, 'breed_id' => $breeds['jack-russell-terrier']?->breed_id,
                     'pet_name' => 'Рекс', 'pet_type' => 'собака', 'pet_breed' => 'джек-рассел-терьер',
                     'description' => 'Коричневая мордочка, очень игривый, всегда бежит знакомиться.',
-                    'location_address' => 'Казань, ул. Летняя, 1',
-                    'latitude' => 55.8300, 'longitude' => 49.0800, // Координаты
+                    'location_address' => 'Казань, Кремлёвская набережная, 1',
+                    'latitude' => 55.801057, 'longitude' => 49.101537, // Реальные координаты
                     'status' => 'active', 'age' => 3, 'gender' => 'male', 'size' => 'small', 'color' => 'белый с коричневыми пятнами',
                     'is_featured' => true,
                 ],
@@ -53,11 +53,11 @@ class AnnouncementSeeder extends Seeder
             ],
             [
                 'details' => [
-                    'user_id' => $user->user_id, 'category_id' => $dogsCategory->category_id, 'breed_id' => $breeds['golden-retriever']?->breed_id,
+                    'user_id' => $user->user_id, 'category_id' => $dogsCategory->category_id, 'breed_id' => $breeds['corgi']?->breed_id,
                     'pet_name' => 'Снежок', 'pet_type' => 'собака', 'pet_breed' => 'корги',
                     'description' => 'Белый и пушистый, очень дружелюбный.',
-                    'location_address' => 'Казань, ул. Мира, 27',
-                    'latitude' => 55.7500, 'longitude' => 49.1500, // Координаты
+                    'location_address' => 'Казань, парк им. Горького',
+                    'latitude' => 55.797801, 'longitude' => 49.145379, // Реальные координаты
                     'status' => 'active', 'age' => 2, 'gender' => 'male', 'size' => 'small', 'color' => 'рыже-белый',
                     'is_featured' => true,
                 ],
@@ -65,11 +65,11 @@ class AnnouncementSeeder extends Seeder
             ],
             [
                 'details' => [
-                    'user_id' => $user->user_id, 'category_id' => $catsCategory->category_id, 'breed_id' => $breeds['british-shorthair']?->breed_id,
+                    'user_id' => $user->user_id, 'category_id' => $catsCategory->category_id, 'breed_id' => $breeds['scottish-fold']?->breed_id,
                     'pet_name' => 'Мурка', 'pet_type' => 'кошка', 'pet_breed' => 'шотландская вислоухая',
                     'description' => 'Серая полосатая, очень ласковая.',
-                    'location_address' => 'Казань, ул. Пушкина, 42',
-                    'latitude' => 55.7961, 'longitude' => 49.1064, // Координаты
+                    'location_address' => 'Казань, ул. Баумана, 42',
+                    'latitude' => 55.792218, 'longitude' => 49.114323, // Реальные координаты
                     'status' => 'active', 'age' => 4, 'gender' => 'female', 'size' => 'medium', 'color' => 'серая полосатая',
                     'is_featured' => true,
                 ],
@@ -80,10 +80,10 @@ class AnnouncementSeeder extends Seeder
                     'user_id' => $user->user_id, 'category_id' => $catsCategory->category_id, 'breed_id' => $breeds['british-shorthair']?->breed_id,
                     'pet_name' => 'Барсик', 'pet_type' => 'кошка', 'pet_breed' => 'британская короткошерстная',
                     'description' => 'Серая с желтыми глазами, на ошейнике золотой колокольчик.',
-                    'location_address' => 'Казань, ул. Восточная, 193',
-                    'latitude' => 55.8200, 'longitude' => 49.1200, // Координаты
+                    'location_address' => 'Казань, ТЦ Мега',
+                    'latitude' => 55.813957, 'longitude' => 49.218318, // Реальные координаты
                     'status' => 'active', 'age' => 5, 'gender' => 'male', 'size' => 'medium', 'color' => 'серая',
-                    'is_featured' => true,
+                    'is_featured' => false, // Сделаем одно объявление не срочным для разнообразия
                 ],
                 'photo' => [ 'path' => 'https://res.cloudinary.com/dwuv4bp72/image/upload/v1759917076/cat2_jprpxt.png' ]
             ],
@@ -96,7 +96,7 @@ class AnnouncementSeeder extends Seeder
             }
 
             $announcement = Announcement::updateOrCreate(
-                ['pet_name' => $data['details']['pet_name'], 'location_address' => $data['details']['location_address']],
+                ['pet_name' => $data['details']['pet_name'], 'user_id' => $user->user_id],
                 $data['details']
             );
 
@@ -111,6 +111,6 @@ class AnnouncementSeeder extends Seeder
             );
         }
 
-        $this->command->info('4 основных объявления успешно созданы/обновлены.');
+        $this->command->info('4 основных объявления успешно созданы/обновлены с реальными координатами.');
     }
 }

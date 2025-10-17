@@ -15,6 +15,7 @@ class Announcement extends Model
 
     protected $fillable = [
         'user_id',
+        'announcement_type',
         'category_id',
         'breed_id',
         'pet_name',

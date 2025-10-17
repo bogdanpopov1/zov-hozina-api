@@ -6,49 +6,25 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\SuccessStoryController;
 use App\Http\Controllers\Api\TelegramAuthController;
-use App\Models\Announcement; // Импортируем модель для использования в маршруте
 use App\Http\Controllers\Api\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Этот файл определяет все маршруты для вашего API.
-| Они разделены на две группы: публичные и защищенные.
-|
 */
 
 // ==================================================
-// 1. ПУБЛИЧНЫЕ МАРШРУТЫ (доступны всем без токена)
+// 1. ПУБЛИЧНЫЕ МАРШРУТЫ
 // ==================================================
 
-// --- Аутентификация ---
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/auth/telegram/callback', [TelegramAuthController::class, 'handleCallback']);
-
-// --- Получение данных для главной страницы ---
 Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
+Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
 
-// Используем этот маршрут для получения 4 срочных объявлений.
-// Дублирующийся маршрут, который вел на контроллер, был удален.
-Route::get('/announcements/urgent', function () {
-    return Announcement::with(['user', 'category', 'breed', 'photos'])
-        ->where('status', 'active')
-        ->where('is_featured', true)
-        ->orderBy('created_at', 'desc')
-        ->limit(4)
-        ->get();
-});
-
-// --- Получение всех объявлений (для страницы с картой) ---
-Route::get('/announcements', function () {
-    return Announcement::with(['user', 'category', 'breed', 'photos'])
-        ->where('status', 'active')
-        ->orderBy('created_at', 'desc')
-        ->get(); // Теперь возвращается полный массив, а не объект пагинации
-});
+// ИСПРАВЛЕНО: Теперь GET-запросы на /announcements обрабатываются контроллером
+Route::get('/announcements', [AnnouncementController::class, 'index']);
 
 
 // ==================================================
@@ -59,12 +35,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Управление сессией ---
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // --- Получение данных о текущем пользователе ---
+    // --- Пользователь ---
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
-    // --- Обновление данных профиля ---
     Route::put('/user', [ProfileController::class, 'update']);
+
+    // --- Объявления ---
+    // Этот маршрут теперь не конфликтует и будет работать корректно
+    Route::post('/announcements', [AnnouncementController::class, 'store']);
 
 });
