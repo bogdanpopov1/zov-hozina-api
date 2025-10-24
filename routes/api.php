@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SuccessStoryController;
 use App\Http\Controllers\Api\TelegramAuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DataController;
+use App\Http\Controllers\Api\VolunteerSubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,20 +34,26 @@ Route::get('/breeds/search', [DataController::class, 'searchBreeds']);
 // ==================================================
 Route::middleware('auth:sanctum')->group(function () {
 
-// --- Управление сессией ---
-Route::post('/logout', [AuthController::class, 'logout']);
+    // --- Управление сессией ---
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-// --- Пользователь ---
-Route::get('/user', function (Request $request) {
-return $request->user();
-});
-Route::put('/user', [ProfileController::class, 'update']);
-Route::get('/user/announcements', [ProfileController::class, 'getAnnouncements']);
+    // --- Пользователь ---
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::put('/user', [ProfileController::class, 'update']);
+    Route::put('/user/volunteer-status', [ProfileController::class, 'updateVolunteerStatus']);
+    Route::get('/user/announcements', [ProfileController::class, 'getAnnouncements']);
 
-// --- Объявления ---
-Route::post('/announcements', [AnnouncementController::class, 'store']);
-Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
-Route::patch('/announcements/{announcement}/status', [AnnouncementController::class, 'updateStatus']);
-Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
+    // --- Объявления ---
+    Route::post('/announcements', [AnnouncementController::class, 'store']);
+    Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
+    Route::patch('/announcements/{announcement}/status', [AnnouncementController::class, 'updateStatus']);
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
+
+    // --- Волонтерство: Управление подписками ---
+    Route::get('/subscriptions', [VolunteerSubscriptionController::class, 'index']);
+    Route::post('/subscriptions', [VolunteerSubscriptionController::class, 'store']);
+    Route::delete('/subscriptions/{subscription}', [VolunteerSubscriptionController::class, 'destroy']);
 
 });

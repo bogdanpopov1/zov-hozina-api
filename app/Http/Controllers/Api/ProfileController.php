@@ -36,10 +36,26 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $announcements = $user->announcements()
-                              ->with(['user', 'photos'])
-                              ->latest()
-                              ->paginate(10);
+            ->with(['user', 'photos'])
+            ->latest()
+            ->paginate(10);
 
         return response()->json($announcements);
+    }
+
+    /**
+     * Обновление волонтерского статуса пользователя.
+     */
+    public function updateVolunteerStatus(Request $request)
+    {
+        $user = Auth::user();
+
+        $validatedData = $request->validate([
+            'is_volunteer' => ['required', 'boolean'],
+        ]);
+
+        $user->update($validatedData);
+
+        return response()->json($user);
     }
 }
