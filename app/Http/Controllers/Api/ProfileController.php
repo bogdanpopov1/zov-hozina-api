@@ -14,22 +14,32 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        // Получаем текущего пользователя
         $user = Auth::user();
 
-        // Валидация входящих данных
         $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
             'location' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string', 'max:1000'],
-            // Email обновлять сложнее, т.к. требует подтверждения. Пока оставим так.
         ]);
 
-        // Обновляем данные пользователя
         $user->update($validatedData);
 
-        // Возвращаем обновленную модель пользователя
         return response()->json($user);
+    }
+
+    /**
+     * Получить объявления аутентифицированного пользователя.
+     */
+    public function getAnnouncements(Request $request)
+    {
+        $user = Auth::user();
+
+        $announcements = $user->announcements()
+                              ->with(['user', 'photos'])
+                              ->latest()
+                              ->paginate(10);
+
+        return response()->json($announcements);
     }
 }

@@ -120,6 +120,14 @@ class Announcement extends Model
     }
 
     /**
+     * Get the search logs for the announcement.
+     */
+    public function searchLogs(): HasMany
+    {
+        return $this->hasMany(SearchLog::class, 'announcement_id', 'announcement_id')->latest();
+    }
+
+    /**
      * Scope a query to only include active announcements.
      */
     public function scopeActive($query)

@@ -33,17 +33,20 @@ Route::get('/breeds/search', [DataController::class, 'searchBreeds']);
 // ==================================================
 Route::middleware('auth:sanctum')->group(function () {
 
-    // --- Управление сессией ---
-    Route::post('/logout', [AuthController::class, 'logout']);
+// --- Управление сессией ---
+Route::post('/logout', [AuthController::class, 'logout']);
 
-    // --- Пользователь ---
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-    Route::put('/user', [ProfileController::class, 'update']);
+// --- Пользователь ---
+Route::get('/user', function (Request $request) {
+return $request->user();
+});
+Route::put('/user', [ProfileController::class, 'update']);
+Route::get('/user/announcements', [ProfileController::class, 'getAnnouncements']);
 
-    // --- Объявления ---
-    // Этот маршрут теперь не конфликтует и будет работать корректно
-    Route::post('/announcements', [AnnouncementController::class, 'store']);
+// --- Объявления ---
+Route::post('/announcements', [AnnouncementController::class, 'store']);
+Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
+Route::patch('/announcements/{announcement}/status', [AnnouncementController::class, 'updateStatus']);
+Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
 
 });
