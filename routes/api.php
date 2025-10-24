@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TelegramAuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\VolunteerSubscriptionController;
+use App\Http\Controllers\Api\SearchLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,10 @@ Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
 Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
 Route::get('/announcements', [AnnouncementController::class, 'index']);
 Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show']);
+
+// --- Журнал поиска ---
+Route::get('/announcements/{announcement}/logs', [SearchLogController::class, 'index']);
+
 Route::get('/categories', [DataController::class, 'getCategories']);
 Route::get('/breeds/search', [DataController::class, 'searchBreeds']);
 
@@ -55,5 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/subscriptions', [VolunteerSubscriptionController::class, 'index']);
     Route::post('/subscriptions', [VolunteerSubscriptionController::class, 'store']);
     Route::delete('/subscriptions/{subscription}', [VolunteerSubscriptionController::class, 'destroy']);
+
+    // --- Волонтерство: Журнал поиска ---
+    Route::post('/announcements/{announcement}/logs', [SearchLogController::class, 'store']);
 
 });
