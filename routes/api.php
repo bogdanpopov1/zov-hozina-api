@@ -27,6 +27,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
 Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
 Route::get('/announcements', [AnnouncementController::class, 'index']);
+Route::get('/announcements/search-suggestion', [AnnouncementController::class, 'searchSuggestion']); // Новый маршрут
 Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show']);
 
 // --- Журнал поиска ---

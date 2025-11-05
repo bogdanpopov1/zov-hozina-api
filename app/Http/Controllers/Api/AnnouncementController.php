@@ -13,32 +13,51 @@ use Illuminate\Support\Facades\DB;
 
 class AnnouncementController extends Controller
 {
+    /**
+     * Получить все объявления с пагинацией и фильтрацией.
+     */
     public function index(Request $request)
     {
         $query = Announcement::with(['user', 'photos']);
 
+        // Фильтр по статусу (только актуальные)
         if ($request->query('actual', 'true') === 'true') {
             $query->where('status', 'active');
         }
 
+        // Полнотекстовый поиск
+        $query->when($request->query('search'), function ($q, $searchTerm) {
+            return $q->where(function ($subQuery) use ($searchTerm) {
+                $subQuery->where('pet_name', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('pet_breed', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('description', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('location_address', 'LIKE', '%' . $searchTerm . '%');
+            });
+        });
+
+        // Фильтр по типу объявления (lost/found)
         $query->when($request->query('announcement_type'), function ($q, $type) {
             if ($type === 'lost' || $type === 'found') {
                 return $q->where('announcement_type', $type);
             }
         });
 
+        // Фильтр по виду животного (по slug категории)
         $query->when($request->query('pet_type_slug'), function ($q, $petTypeSlug) {
             $category = \App\Models\Category::where('slug', $petTypeSlug)->first();
             if ($category) {
-                return $q->where('pet_type', $category->name);
+                return $q->where('pet_type', 'LIKE', '%' . $category->name . '%');
             }
             return $q;
         });
 
+
+        // Фильтр по населенному пункту
         $query->when($request->query('location'), function ($q, $location) {
             return $q->where('location_address', 'LIKE', '%' . $location . '%');
         });
 
+        // Фильтр по времени публикации
         $query->when($request->query('time_period'), function ($q, $time) {
             if ($time === 'today') {
                 return $q->whereDate('created_at', today());
@@ -54,6 +73,7 @@ class AnnouncementController extends Controller
             }
         });
 
+        // Фильтр по кастомному периоду
         $query->when($request->query('date_from'), function ($q, $dateFrom) {
             return $q->whereDate('created_at', '>=', $dateFrom);
         });
@@ -61,6 +81,7 @@ class AnnouncementController extends Controller
             return $q->whereDate('created_at', '<=', $dateTo);
         });
 
+        // Логика сортировки
         $sortBy = $request->query('sort_by', 'default');
         switch ($sortBy) {
             case 'newest':
@@ -74,11 +95,39 @@ class AnnouncementController extends Controller
                 break;
         }
 
-        $announcements = $query->paginate(20);
+        $announcements = $query->paginate(50);
 
         return response()->json($announcements);
     }
 
+    /**
+     * Получить одно объявление-подсказку для живого поиска.
+     */
+    public function searchSuggestion(Request $request)
+    {
+        $request->validate([
+            'search' => 'required|string|min:2',
+        ]);
+
+        $searchTerm = $request->query('search');
+
+        $announcement = Announcement::with('photos')
+            ->where('status', 'active')
+            ->where(function ($query) use ($searchTerm) {
+                $query->where('pet_name', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('pet_breed', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('location_address', 'LIKE', '%' . $searchTerm . '%');
+            })
+            ->latest() // Сначала самые новые
+            ->first(); // Берем только одно
+
+        return response()->json($announcement ? [$announcement] : []);
+    }
+
+
+    /**
+     * Получить 4 последних "срочных" объявления для главной страницы.
+     */
     public function getUrgent()
     {
         $announcements = Announcement::with(['user', 'photos'])
@@ -91,12 +140,18 @@ class AnnouncementController extends Controller
         return response()->json($announcements);
     }
 
+    /**
+     * Display the specified announcement.
+     */
     public function show(Announcement $announcement)
     {
         $announcement->load(['user', 'photos']);
         return response()->json($announcement);
     }
 
+    /**
+     * Сохранить новое объявление в базе данных.
+     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -137,6 +192,9 @@ class AnnouncementController extends Controller
         return response()->json($announcement->load('photos'), 201);
     }
 
+    /**
+     * Update the specified announcement in storage.
+     */
     public function update(Request $request, Announcement $announcement)
     {
         if (Auth::id() !== $announcement->user_id) {
@@ -164,17 +222,19 @@ class AnnouncementController extends Controller
 
         $announcement->update($validatedData);
 
+        // 1. Удаление отмеченных фотографий
         if ($request->input('photos_to_delete')) {
             $photosToDeleteIds = $request->input('photos_to_delete');
             $photosToDelete = Photo::whereIn('photo_id', $photosToDeleteIds)
-                                   ->where('announcement_id', $announcement->announcement_id)
-                                   ->get();
+                ->where('announcement_id', $announcement->announcement_id)
+                ->get();
             foreach ($photosToDelete as $photo) {
                 Storage::disk('public')->delete($photo->getAttributes()['path']);
                 $photo->delete();
             }
         }
 
+        // 2. Загрузка новых фотографий
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $file) {
                 $path = $file->store('announcements/' . $announcement->announcement_id, 'public');
@@ -188,20 +248,24 @@ class AnnouncementController extends Controller
                 ]);
             }
         }
-        
+
+        // 3. Установка главной фотографии
         $primaryId = $request->input('primary_photo_id');
         if ($primaryId) {
-             DB::transaction(function () use ($announcement, $primaryId) {
+            DB::transaction(function () use ($announcement, $primaryId) {
                 $announcement->photos()->update(['is_primary' => false]);
                 Photo::where('photo_id', $primaryId)
-                     ->where('announcement_id', $announcement->announcement_id)
-                     ->update(['is_primary' => true]);
+                    ->where('announcement_id', $announcement->announcement_id)
+                    ->update(['is_primary' => true]);
             });
         }
 
         return response()->json($announcement->load('photos'));
     }
 
+    /**
+     * Update only the status of the announcement.
+     */
     public function updateStatus(Request $request, Announcement $announcement)
     {
         if (Auth::id() !== $announcement->user_id) {
@@ -217,6 +281,10 @@ class AnnouncementController extends Controller
         return response()->json($announcement->load('photos'));
     }
 
+
+    /**
+     * Remove the specified announcement from storage.
+     */
     public function destroy(Announcement $announcement)
     {
         if (Auth::id() !== $announcement->user_id) {
