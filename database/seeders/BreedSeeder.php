@@ -20,6 +20,7 @@ class BreedSeeder extends Seeder
 
         $breeds = [
             // Собаки (category_id = 1)
+            ['category_id' => 1, 'name' => 'Неизвестная', 'slug' => 'unknown'],
             ['category_id' => 1, 'name' => 'Акита-ину', 'slug' => 'akita-inu'],
             ['category_id' => 1, 'name' => 'Алабай (САО)', 'slug' => 'alabay'],
             ['category_id' => 1, 'name' => 'Аляскинский маламут', 'slug' => 'alaskan-malamute'],
@@ -65,6 +66,7 @@ class BreedSeeder extends Seeder
             ['category_id' => 1, 'name' => 'Метис', 'slug' => 'mongrel'],
 
             // Кошки (category_id = 2)
+            ['category_id' => 2, 'name' => 'Неизвестная', 'slug' => 'unknown'],
             ['category_id' => 2, 'name' => 'Абиссинская', 'slug' => 'abyssinian'],
             ['category_id' => 2, 'name' => 'Бенгальская', 'slug' => 'bengal'],
             ['category_id' => 2, 'name' => 'Британская короткошерстная', 'slug' => 'british-shorthair'],
