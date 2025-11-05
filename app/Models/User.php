@@ -31,11 +31,13 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
+        'telegram_username',
         'bio',
         'avatar',
         'location',
         'latitude',
         'longitude',
+        'is_volunteer',
         'is_verified',
         'last_seen',
         'preferences',
@@ -59,6 +61,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_volunteer' => 'boolean',
         'is_verified' => 'boolean',
         'last_seen' => 'datetime',
         'preferences' => 'array',
@@ -112,5 +115,21 @@ class User extends Authenticatable
     public function reviewsReceived(): HasMany
     {
         return $this->hasMany(Review::class, 'reviewee_id', 'user_id');
+    }
+
+    /**
+     * Get the volunteer subscriptions for the user.
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(VolunteerSubscription::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the search logs created by the user (as a volunteer).
+     */
+    public function searchLogs(): HasMany
+    {
+        return $this->hasMany(SearchLog::class, 'user_id', 'user_id');
     }
 }

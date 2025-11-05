@@ -1,11 +1,16 @@
 <?php
 
-use App\Http\Controllers\Api\TelegramAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\SuccessStoryController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TelegramAuthController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\DataController;
+use App\Http\Controllers\Api\VolunteerSubscriptionController;
+use App\Http\Controllers\Api\SearchLogController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,55 +18,56 @@ use App\Http\Controllers\Api\AuthController;
 |--------------------------------------------------------------------------
 */
 
-// --- Роуты, доступные всем ---
+// ==================================================
+// 1. ПУБЛИЧНЫЕ МАРШРУТЫ
+// ==================================================
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
 Route::get('/stories/happy', [SuccessStoryController::class, 'getStories']);
-Route::post('/auth/telegram/callback', [TelegramAuthController::class, 'handleCallback']);
+Route::get('/announcements/urgent', [AnnouncementController::class, 'getUrgent']);
+Route::get('/announcements', [AnnouncementController::class, 'index']);
+Route::get('/announcements/search-suggestion', [AnnouncementController::class, 'searchSuggestion']); // Новый маршрут
+Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show']);
 
-// --- Тестовые роуты для проверки БД ---
-Route::get('/test/categories', function () {
-    return \App\Models\Category::with('breeds')->get();
-});
+// --- Журнал поиска ---
+Route::get('/announcements/{announcement}/logs', [SearchLogController::class, 'index']);
 
-Route::get('/test/breeds', function () {
-    return \App\Models\Breed::with('category')->get();
-});
+Route::get('/categories', [DataController::class, 'getCategories']);
+Route::get('/breeds/search', [DataController::class, 'searchBreeds']);
 
-Route::get('/test/announcements', function () {
-    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])->get();
-});
-
-// --- API для клиентского приложения ---
-Route::get('/announcements/urgent', function () {
-    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])
-        ->where('status', 'active')
-        ->where('is_featured', true)
-        ->orderBy('created_at', 'desc')
-        ->limit(4)
-        ->get();
-});
-
-Route::get('/announcements', function () {
-    return \App\Models\Announcement::with(['user', 'category', 'breed', 'photos'])
-        ->where('status', 'active')
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
-});
-
-
-// --- Роуты, доступные только авторизованным пользователям ---
+// ==================================================
+// 2. ЗАЩИЩЕННЫЕ МАРШРУТЫ (требуют Bearer токен)
+// ==================================================
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // Получить информацию о текущем пользователе
+
+    // --- Управление сессией ---
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // --- Пользователь ---
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::put('/user', [ProfileController::class, 'update']);
+    Route::put('/user/volunteer-status', [ProfileController::class, 'updateVolunteerStatus']);
+    Route::get('/user/announcements', [ProfileController::class, 'getAnnouncements']);
 
-    // Выйти из системы
-    Route::post('/logout', [AuthController::class, 'logout']);
+    // --- Объявления ---
+    Route::post('/announcements', [AnnouncementController::class, 'store']);
+    Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
+    Route::patch('/announcements/{announcement}/status', [AnnouncementController::class, 'updateStatus']);
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
 
-    // Здесь в будущем будут другие роуты для авторизованных
-    // например, Route::post('/announcements', [AnnouncementController::class, 'store']);
+    // --- Волонтерство: Управление подписками ---
+    Route::get('/subscriptions', [VolunteerSubscriptionController::class, 'index']);
+    Route::post('/subscriptions', [VolunteerSubscriptionController::class, 'store']);
+    Route::delete('/subscriptions/{subscription}', [VolunteerSubscriptionController::class, 'destroy']);
+
+    // --- Волонтерство: Журнал поиска ---
+    Route::post('/announcements/{announcement}/logs', [SearchLogController::class, 'store']);
+
+    // --- Уведомления ---
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{log}/read', [NotificationController::class, 'markSingleAsRead']);
+
 });
