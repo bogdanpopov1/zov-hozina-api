@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\VolunteerSubscriptionController;
 use App\Http\Controllers\Api\SearchLogController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,5 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Волонтерство: Журнал поиска ---
     Route::post('/announcements/{announcement}/logs', [SearchLogController::class, 'store']);
+
+    // --- Уведомления ---
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{log}/read', [NotificationController::class, 'markSingleAsRead']);
 
 });

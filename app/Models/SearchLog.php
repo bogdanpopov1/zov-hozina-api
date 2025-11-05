@@ -19,6 +19,11 @@ class SearchLog extends Model
         'comment',
         'latitude',
         'longitude',
+        'is_read',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
     ];
 
     /**
