@@ -3,10 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Schema;
-use App\Models\Announcement;
-use App\Models\Breed;
-use App\Models\Category;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,20 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Отключаем проверку внешних ключей
-        Schema::disableForeignKeyConstraints();
-
-        // Очищаем таблицы в ПРАВИЛЬНОМ порядке: от дочерних к родительским
-        Announcement::query()->truncate();
-        Breed::query()->truncate();
-        Category::query()->truncate();
-        // Photo и SearchLog очистятся каскадно, если настроено,
-        // но для надежности можно добавить и их.
-
-        // Включаем проверку обратно
-        Schema::enableForeignKeyConstraints();
-
-        // Вызываем сидеры для заполнения таблиц
+        // Логика очистки полностью удалена и перенесена в команду migrate:fresh
         $this->call([
             CategorySeeder::class,
             BreedSeeder::class,

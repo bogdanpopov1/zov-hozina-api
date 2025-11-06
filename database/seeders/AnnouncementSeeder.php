@@ -22,22 +22,21 @@ class AnnouncementSeeder extends Seeder
             ]
         );
 
-        $dogsCategory = Category::where('slug', 'dogs')->first();
-        $catsCategory = Category::where('slug', 'cats')->first();
+        $dogsCategory = Category::where('slug', 'dog')->first();
+        $catsCategory = Category::where('slug', 'cat')->first();
 
         if (!$dogsCategory || !$catsCategory) {
-            $this->command->error('Категории "dogs" или "cats" не найдены. Запустите CategorySeeder.');
+            $this->command->error('Категории "dog" или "cat" не найдены. Запустите CategorySeeder.');
             return;
         }
 
         $breeds = [
-            'jack-russell-terrier' => Breed::where('slug', 'yorkshire-terrier')->first(), // Используем йорка как замену
-            'corgi' => Breed::where('slug', 'golden-retriever')->first(), // Используем ретривера как замену
-            'scottish-fold' => Breed::where('slug', 'british-shorthair')->first(), // Используем британца
+            'jack-russell-terrier' => Breed::where('slug', 'yorkshire-terrier')->first(),
+            'corgi' => Breed::where('slug', 'golden-retriever')->first(),
+            'scottish-fold' => Breed::where('slug', 'british-shorthair')->first(),
             'british-shorthair' => Breed::where('slug', 'british-shorthair')->first(),
         ];
 
-        // ИСПРАВЛЕНО: Массив данных с реальными адресами и координатами в Казани
         $announcementsData = [
             [
                 'details' => [
@@ -45,7 +44,7 @@ class AnnouncementSeeder extends Seeder
                     'pet_name' => 'Рекс', 'pet_type' => 'собака', 'pet_breed' => 'джек-рассел-терьер',
                     'description' => 'Коричневая мордочка, очень игривый, всегда бежит знакомиться.',
                     'location_address' => 'Казань, Кремлёвская набережная, 1',
-                    'latitude' => 55.801057, 'longitude' => 49.101537, // Реальные координаты
+                    'latitude' => 55.801057, 'longitude' => 49.101537,
                     'status' => 'active', 'age' => 3, 'gender' => 'male', 'size' => 'small', 'color' => 'белый с коричневыми пятнами',
                     'is_featured' => true,
                 ],
@@ -57,7 +56,7 @@ class AnnouncementSeeder extends Seeder
                     'pet_name' => 'Снежок', 'pet_type' => 'собака', 'pet_breed' => 'корги',
                     'description' => 'Белый и пушистый, очень дружелюбный.',
                     'location_address' => 'Казань, парк им. Горького',
-                    'latitude' => 55.797801, 'longitude' => 49.145379, // Реальные координаты
+                    'latitude' => 55.797801, 'longitude' => 49.145379,
                     'status' => 'active', 'age' => 2, 'gender' => 'male', 'size' => 'small', 'color' => 'рыже-белый',
                     'is_featured' => true,
                 ],
@@ -69,7 +68,7 @@ class AnnouncementSeeder extends Seeder
                     'pet_name' => 'Мурка', 'pet_type' => 'кошка', 'pet_breed' => 'шотландская вислоухая',
                     'description' => 'Серая полосатая, очень ласковая.',
                     'location_address' => 'Казань, ул. Баумана, 42',
-                    'latitude' => 55.792218, 'longitude' => 49.114323, // Реальные координаты
+                    'latitude' => 55.792218, 'longitude' => 49.114323,
                     'status' => 'active', 'age' => 4, 'gender' => 'female', 'size' => 'medium', 'color' => 'серая полосатая',
                     'is_featured' => true,
                 ],
@@ -81,9 +80,9 @@ class AnnouncementSeeder extends Seeder
                     'pet_name' => 'Барсик', 'pet_type' => 'кошка', 'pet_breed' => 'британская короткошерстная',
                     'description' => 'Серая с желтыми глазами, на ошейнике золотой колокольчик.',
                     'location_address' => 'Казань, ТЦ Мега',
-                    'latitude' => 55.813957, 'longitude' => 49.218318, // Реальные координаты
+                    'latitude' => 55.813957, 'longitude' => 49.218318,
                     'status' => 'active', 'age' => 5, 'gender' => 'male', 'size' => 'medium', 'color' => 'серая',
-                    'is_featured' => false, // Сделаем одно объявление не срочным для разнообразия
+                    'is_featured' => false,
                 ],
                 'photo' => [ 'path' => 'https://res.cloudinary.com/dwuv4bp72/image/upload/v1759917076/cat2_jprpxt.png' ]
             ],

@@ -5,7 +5,7 @@ set -e
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
-sleep 15
+sleep 10
 
 # Find PHP executable
 PHP_CMD="php"
@@ -24,9 +24,9 @@ echo "Using PHP: $PHP_CMD"
 echo "Clearing configuration cache..."
 $PHP_CMD artisan config:clear
 
-# Run migrations
-echo "Running migrations..."
-$PHP_CMD artisan migrate --force
+# Drop all tables and re-run all migrations
+echo "Running fresh migrations..."
+$PHP_CMD artisan migrate:fresh --force
 
 # Run seeders
 echo "Running seeders..."
