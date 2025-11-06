@@ -4,23 +4,19 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Breed;
-use Illuminate\Support\Facades\Schema; 
+use Illuminate\Support\Facades\Schema;
 
 class BreedSeeder extends Seeder
 {
     public function run(): void
     {
         Schema::disableForeignKeyConstraints();
-
-        // Очищаем таблицу перед заполнением
-        Breed::query()->truncate(); // Используем truncate для полной очистки
-
-        // Включаем проверку обратно
+        Breed::query()->truncate();
         Schema::enableForeignKeyConstraints();
 
         $breeds = [
             // Собаки (category_id = 1)
-            ['category_id' => 1, 'name' => 'Неизвестная', 'slug' => 'unknown'],
+            ['category_id' => 1, 'name' => 'Неизвестная', 'slug' => 'dog-unknown'],
             ['category_id' => 1, 'name' => 'Акита-ину', 'slug' => 'akita-inu'],
             ['category_id' => 1, 'name' => 'Алабай (САО)', 'slug' => 'alabay'],
             ['category_id' => 1, 'name' => 'Аляскинский маламут', 'slug' => 'alaskan-malamute'],
@@ -66,7 +62,7 @@ class BreedSeeder extends Seeder
             ['category_id' => 1, 'name' => 'Метис', 'slug' => 'mongrel'],
 
             // Кошки (category_id = 2)
-            ['category_id' => 2, 'name' => 'Неизвестная', 'slug' => 'unknown'],
+            ['category_id' => 2, 'name' => 'Неизвестная', 'slug' => 'cat-unknown'],
             ['category_id' => 2, 'name' => 'Абиссинская', 'slug' => 'abyssinian'],
             ['category_id' => 2, 'name' => 'Бенгальская', 'slug' => 'bengal'],
             ['category_id' => 2, 'name' => 'Британская короткошерстная', 'slug' => 'british-shorthair'],
