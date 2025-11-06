@@ -5,7 +5,7 @@ set -e
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
-sleep 10
+sleep 15
 
 # Find PHP executable
 PHP_CMD="php"
@@ -19,6 +19,10 @@ if ! command -v php &> /dev/null; then
 fi
 
 echo "Using PHP: $PHP_CMD"
+
+# Clear any cached configuration
+echo "Clearing configuration cache..."
+$PHP_CMD artisan config:clear
 
 # Run migrations
 echo "Running migrations..."
