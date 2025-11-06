@@ -15,10 +15,10 @@ class AnnouncementSeeder extends Seeder
     public function run(): void
     {
         $user = User::updateOrCreate(
-            ['email' => 'test@example.com'],
+            ['email' => '1@1'],
             [
-                'name' => 'Тестовый Пользователь',
-                'password' => bcrypt('password'),
+                'name' => 'Богдан Попов',
+                'password' => bcrypt('12345678'),
             ]
         );
 

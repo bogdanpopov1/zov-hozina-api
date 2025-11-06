@@ -13,8 +13,6 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::query()->delete();
-
         $categories = [
             [
                 'name' => 'Собака',

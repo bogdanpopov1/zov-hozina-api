@@ -10,10 +10,6 @@ class BreedSeeder extends Seeder
 {
     public function run(): void
     {
-        Schema::disableForeignKeyConstraints();
-        Breed::query()->truncate();
-        Schema::enableForeignKeyConstraints();
-
         $breeds = [
             // Собаки (category_id = 1)
             ['category_id' => 1, 'name' => 'Неизвестная', 'slug' => 'dog-unknown'],
