@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
 sleep 10
@@ -7,7 +10,6 @@ sleep 10
 # Find PHP executable
 PHP_CMD="php"
 if ! command -v php &> /dev/null; then
-    # Try common PHP locations
     for path in /usr/bin/php /usr/local/bin/php /opt/php/bin/php; do
         if [ -x "$path" ]; then
             PHP_CMD="$path"
@@ -18,11 +20,15 @@ fi
 
 echo "Using PHP: $PHP_CMD"
 
-# Run migrations
-echo "Running migrations..."
-$PHP_CMD artisan migrate --force
+# Clear any cached configuration
+echo "Clearing configuration cache..."
+$PHP_CMD artisan config:clear
 
-# Run seeders (optional - only for initial setup)
+# Drop all tables and re-run all migrations
+echo "Running fresh migrations..."
+$PHP_CMD artisan migrate:fresh --force
+
+# Run seeders
 echo "Running seeders..."
 $PHP_CMD artisan db:seed --force
 
