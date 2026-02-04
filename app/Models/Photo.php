@@ -46,15 +46,12 @@ class Photo extends Model
 
     public function getUrlAttribute(): string
     {
-        // Получаем значение из колонки 'path'
         $path = $this->attributes['path'];
 
-        // Если это уже полный URL (например, от Cloudinary в старых записях), возвращаем его как есть
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
 
-        // Иначе, формируем полный URL через фасад Storage
         return Storage::disk('public')->url($path);
     }
 
@@ -72,19 +69,6 @@ class Photo extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order')->orderBy('created_at');
-    }
-
-    /**
-     * Get the full URL for the photo.
-     */
-    public function getPathAttribute($value)
-    {
-        // Если путь уже является полным URL (например, из сидера), возвращаем как есть
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return $value;
-        }
-        // Иначе, формируем URL через Storage
-        return Storage::disk('public')->url($value);
     }
 
     /**
